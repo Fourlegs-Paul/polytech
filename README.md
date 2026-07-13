@@ -1,34 +1,53 @@
-# 실시간 노드 그래프 — 월드컵 2026 봇 흐름 (학생 데모)
+# 니 성격 뭔데?
 
-Hermes Agent가 "지금 활용하는 구조"를 그대로 실시간 노드 그래프로
-보여주는 웹앱입니다. 학생이 "텔레그램에 월드컵이라고 보낸다"는
-행동을 버튼/실제 봇으로 트리거하면, 흐름이 노드 단위로 점등됩니다.
+Google 로그인 기반의 성격 경향 설문 서비스입니다. 12개 질문의 응답을 바탕으로 16가지 MBTI 형식 결과를 보여 주고, 응답을 Supabase PostgreSQL에 저장합니다.
 
-## 구조 (노드)
-사용자 → 텔레그램서버 → 봇서버(Node) → 트리거감지("월드컵")
-→ 데이터모듈 → 응답생성 → 텔레그램전송 → 사용자수신
+> 이 서비스는 흥미를 위한 성격 경향 설문이며, 의학적·심리학적 진단 도구가 아닙니다.
 
-## 실행
-1) 웹 서버 (토큰 불필요, 바로 데모 가능)
-   cd html
-   node server.js
-   → 브라우저 http://localhost:3001
-   → "📱 텔레그램에 '월드컵' 보내기" 클릭 → 그래프 점등
+## 기능
 
-2) 텔레그램 봇 (실제 메시지 연동, 토큰 필요)
-   - @BotFather → /newbot → 토큰 발급
-   - set BOT_TOKEN=123456:ABC...
-   - node bot.js
-   - 텔레그램에서 봇에게 "월드컵" 전송
-     → 봇이 스냅샷 회신 + 웹 그래프 라이브 점등
+- Google OAuth 로그인
+- 12문항·16유형 결과 계산
+- 로그인 사용자별 응답 저장 및 재응시
+- 관리자(`schaffencom@gmail.com`) 전용 통계·CSV 다운로드
+- Supabase Row Level Security(RLS) 기반 권한 제어
+- Vercel 배포 지원
 
-## 라이브 데이터 연동
-worldcup-data.js 의 fetchLive() 를 football-data.org 등과 연결하면
-실제 순위가 갱신됩니다 (현재는 2026-07-13 기준 데모 스냅샷).
+## 로컬 실행
 
-## 파일
-- index.html        : 노드그래프 UI + SSE 수신 + 트리거 버튼
-- server.js         : 정적서버 + SSE(/events) + 트리거(/api/trigger)
-- bot.js            : 텔레그램 폴링 봇 (월드컵 트리거)
-- worldcup-data.js  : 월드컵 2026 스냅샷 + fetchLive() 자리
-- config.js         : 환경변수 설정 예시
+```bash
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+`.env.local`의 `NEXT_PUBLIC_SUPABASE_ANON_KEY`에 Supabase의 **anon public key**를 입력하세요.
+
+## Supabase 설정
+
+1. Supabase Dashboard → **SQL Editor**에서 `supabase/schema.sql` 전체를 실행합니다.
+2. Authentication → Providers → **Google**을 켭니다.
+3. Google Cloud Console에서 발급한 Client ID/Client Secret을 Google Provider 설정에 입력합니다.
+4. Authentication → URL Configuration에서 다음을 추가합니다.
+   - Site URL: `https://polytech-4mv4.vercel.app`
+   - Redirect URLs: `http://localhost:3000`, `https://polytech-4mv4.vercel.app`
+
+## Vercel 환경 변수
+
+Vercel Dashboard → Project → Settings → Environment Variables에 다음을 입력합니다.
+
+| 이름 | 값 |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://hhirmhtkdjclvjsbpuad.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Project Settings → API의 anon public key |
+
+`service_role key`, Google Client Secret, Vercel 토큰은 코드나 채팅에 절대 넣지 마세요.
+
+## 배포
+
+GitHub의 `main` 브랜치에 푸시하면, 해당 저장소와 연결된 Vercel 프로젝트에서 자동으로 빌드·배포하도록 연결할 수 있습니다.
+
+```bash
+npm run test
+npm run build
+```
