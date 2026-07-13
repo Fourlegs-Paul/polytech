@@ -29,8 +29,8 @@ npm run dev
 2. Authentication → Providers → **Google**을 켭니다.
 3. Google Cloud Console에서 발급한 Client ID/Client Secret을 Google Provider 설정에 입력합니다.
 4. Authentication → URL Configuration에서 다음을 추가합니다.
-   - Site URL: `https://polytech-4mv4.vercel.app`
-   - Redirect URLs: `http://localhost:3000`, `https://polytech-4mv4.vercel.app`
+   - Site URL: `https://polytech-x9th.vercel.app`
+   - Redirect URLs: `http://localhost:3000`, `https://polytech-x9th.vercel.app`
 
 ## Vercel 환경 변수
 
