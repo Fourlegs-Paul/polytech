@@ -1,15 +1,29 @@
 export default function HowPage() {
-  return <main className="how"><header><b>달빛 타로 · 제작 노트</b><a href="/">서비스로 돌아가기</a></header><article><p className="kicker">FROM IDEA TO DEPLOYMENT</p><h1>3장의 카드가<br/>웹서비스가 되기까지</h1><p className="lead">아이디어를 정하고, 로그인·데이터베이스·AI 풀이·배포를 연결하며 실제로 겪은 문제와 해결 과정을 정리한 강의용 제작 기록입니다.</p>
-  <section><h2>1. 문제 정의</h2><div className="grid"><div><strong>사용자 경험</strong><p>질문을 적고, 무작위 카드 3장을 뽑고, 각 카드의 의미를 AI가 하나의 이야기로 연결한다.</p></div><div><strong>운영 조건</strong><p>Google 로그인 사용자만 시작할 수 있고, 결과는 나중에 다시 볼 수 있도록 저장한다.</p></div><div><strong>관리자 기능</strong><p>관리자 계정은 최근 질문·카드 조합·응답 시각을 확인한다.</p></div></div></section>
-  <section><h2>2. 서비스 구조</h2><pre>{`브라우저 (Next.js)
-  ├─ Google 로그인 ──────────────┐
-  ├─ 카드 3장 무작위 추첨          │
-  └─ /api/reading ─ Gemini API     │
-                                  ▼
-                         Supabase (Auth + PostgreSQL)
-                         tarot_readings 테이블`}</pre><p>프론트엔드는 Vercel에서 배포하고, 로그인과 데이터 저장은 Supabase가 담당합니다. AI 키는 절대 브라우저에 넣지 않고 Vercel 서버 API에서만 사용합니다.</p></section>
-  <section><h2>3. 구현 순서</h2><ol><li><b>카드 데이터 만들기</b><span>메이저 아르카나 22장을 카드 이름, 키워드, 이미지로 정의하고 중복 없이 3장을 뽑는 함수를 만들었습니다.</span></li><li><b>로그인 제한</b><span>Supabase Auth의 Google OAuth를 연결해 로그인 전에는 게임 시작 버튼만 보이게 했습니다.</span></li><li><b>DB 보안</b><span><code>tarot_readings</code> 테이블과 RLS 정책을 작성해 사용자는 자기 결과만 저장·조회하고, 관리자만 전체 기록을 조회하게 했습니다.</span></li><li><b>AI 리딩 API</b><span>카드의 과거·현재·조언 역할과 질문을 Gemini 서버 API에 보내 한국어 풀이를 받습니다.</span></li><li><b>Vercel 배포</b><span>GitHub <code>main</code> 브랜치 푸시가 Vercel 배포로 이어지게 했습니다.</span></li></ol></section>
-  <section><h2>4. 실제 시행착오와 해결</h2><div className="lessons"><div><b>환경 변수가 없다는 오류</b><p><em>증상</em> Supabase 환경 변수가 없다는 클라이언트 예외가 발생했습니다.</p><p><em>원인</em> Vercel 프로젝트가 여러 개여서, 실제 접속한 도메인과 변수를 넣은 프로젝트가 달랐습니다.</p><p><em>교훈</em> 배포 주소, Vercel 프로젝트 이름, Production 환경을 항상 한 세트로 확인합니다.</p></div><div><b>Google 로그인 뒤 다른 도메인으로 이동</b><p><em>증상</em> 로그인 뒤 예전 Vercel 주소로 돌아갔습니다.</p><p><em>원인</em> Supabase의 Site URL / Redirect URL이 이전 주소를 가리켰습니다.</p><p><em>교훈</em> OAuth에서는 배포 주소가 바뀔 때 Supabase Redirect URL도 반드시 갱신합니다.</p></div><div><b>OpenAI 429 quota exceeded</b><p><em>증상</em> 키는 인식됐지만 AI 풀이가 실패했습니다.</p><p><em>원인</em> ChatGPT 구독과 API 과금은 별도이며, API 프로젝트에 사용 가능 크레딧이 없었습니다.</p><p><em>교훈</em> 모델 호출 전에는 API 키·결제·월간 한도를 따로 확인합니다.</p></div><div><b>Gemini 모델 404</b><p><em>증상</em> Gemini 키를 넣은 뒤에도 모델을 찾을 수 없었습니다.</p><p><em>원인</em> 이전 모델이 신규 사용자에게 더 이상 제공되지 않았습니다.</p><p><em>교훈</em> API 오류는 키만 의심하지 말고 공식 모델 목록과 모델 사용 가능 여부를 확인합니다.</p></div><div><b>JSON 파싱 오류</b><p><em>증상</em> 서버가 빈 응답을 주자 브라우저에서 JSON 파싱 오류가 났습니다.</p><p><em>해결</em> 응답 본문을 먼저 텍스트로 읽고, JSON 여부와 오류 메시지를 안전하게 처리했습니다.</p><p><em>교훈</em> 외부 API 응답은 성공·오류·빈 응답을 모두 가정해서 작성합니다.</p></div></div></section>
-  <section><h2>5. 수업에서 강조할 팁</h2><ul><li><b>“예쁘게 만들기” 다음 단계는 연결하기입니다.</b> UI, 로그인, DB, API, 배포는 서로 다른 책임을 가집니다.</li><li><b>키는 코드에 넣지 않습니다.</b> 공개 가능한 Supabase anon 키와 비공개 Gemini API 키를 구분합니다.</li><li><b>에러 메시지는 증거입니다.</b> 401은 인증, 429는 한도, 404는 주소·모델·경로 문제일 가능성이 큽니다.</li><li><b>배포는 마지막 버튼이 아닙니다.</b> Production 환경 변수, Redirect URL, 실제 도메인까지 검증해야 완료입니다.</li><li><b>테스트를 남깁니다.</b> 카드가 3장인지, 중복이 없는지 같은 핵심 규칙은 자동 테스트로 확인합니다.</li></ul></section>
-  <section className="check"><h2>배포 전 체크리스트</h2><p>□ Vercel의 실제 Production 프로젝트에 환경 변수가 있는가? &nbsp; □ Supabase SQL과 RLS를 실행했는가? &nbsp; □ Google OAuth Redirect URL은 현재 도메인인가? &nbsp; □ Gemini 모델 이름과 API 한도를 확인했는가? &nbsp; □ 로그인·카드 추첨·AI 리딩·DB 저장을 실제로 한 번씩 검증했는가?</p></section></article></main>
+  return <main className="how"><header><b>달빛 타로 · 따라하기 수업</b><a href="/">서비스로 돌아가기</a></header><article><p className="kicker">BUILD WITH HERMES</p><h1>아이디어를 웹서비스로<br/>배포하는 방법</h1><p className="lead">이 수업의 목표는 코드를 직접 외우는 것이 아닙니다. GitHub, Vercel, Supabase, AI API가 각각 무엇을 맡는지 이해하고, 자신의 Hermes에게 원하는 서비스를 정확히 요청해 완성하는 것입니다.</p>
+  <section><h2>수업의 전체 지도</h2><pre>{`1. 서비스 아이디어 정하기
+        ↓
+2. GitHub 저장소 만들기 ── 코드의 원본·변경 기록
+        ↓
+3. Hermes에게 앱 제작 요청 ── 코드와 테스트 생성
+        ↓
+4. Vercel 연결 ──────────── 웹에 자동 배포
+        ↓
+5. Supabase 연결 ────────── 로그인·DB·권한
+        ↓
+6. Gemini API 연결 ──────── AI 기능
+        ↓
+7. 실제 사용자 흐름 검증 ── 로그인 → 저장 → 결과`}</pre></section>
+  <section><h2>1. GitHub: 프로젝트의 원본 보관함</h2><p>GitHub는 코드 파일을 보관하고, 언제 무엇이 바뀌었는지 기록하는 서비스입니다. Hermes가 만든 코드는 GitHub 저장소에 푸시하고, Vercel은 이 저장소의 변경을 감지해 자동으로 새 웹사이트를 만듭니다.</p><div className="grid"><div><strong>가입</strong><p>github.com에서 계정을 만들고 이메일 인증을 합니다.</p></div><div><strong>저장소(Repository)</strong><p>서비스 하나당 저장소 하나를 만듭니다. 예: <code>my-tarot-app</code></p></div><div><strong>커밋(Commit)</strong><p>“어떤 변경을 저장했다”는 이력입니다. 문제가 생기면 이전 상태를 비교할 수 있습니다.</p></div></div><p className="tip"><b>Hermes에게 이렇게 요청하세요.</b><br/>“현재 폴더의 프로젝트를 GitHub 저장소에 연결하고, 변경 내용을 커밋한 뒤 main 브랜치로 푸시해줘.”</p></section>
+  <section><h2>2. Vercel: 코드를 웹주소로 바꾸는 서비스</h2><p>Vercel은 GitHub 저장소를 받아 자동으로 빌드하고, 누구나 접속할 수 있는 <code>프로젝트이름.vercel.app</code> 주소로 배포합니다. 코드를 수정해 GitHub에 푸시하면 Vercel이 다시 배포합니다.</p><ol><li><b>가입 및 연결</b><span>vercel.com에서 GitHub 계정으로 로그인하고, GitHub 저장소를 Import합니다.</span></li><li><b>프로젝트 주소 확인</b><span>여러 Vercel 프로젝트가 생기면 각각 다른 <code>vercel.app</code> 주소를 갖습니다. 실제 사용 중인 주소 하나를 기준으로 삼아야 합니다.</span></li><li><b>환경 변수 설정</b><span>Settings → Environment Variables에서 API 키와 서비스 주소를 입력합니다. 키를 코드나 GitHub에 쓰지 않는 이유는 비밀 정보를 보호하기 위해서입니다.</span></li><li><b>재배포</b><span>환경 변수를 바꾼 뒤에는 Deployments에서 Redeploy해야 새 배포본에 반영됩니다.</span></li></ol><p className="tip"><b>핵심 팁:</b> 환경 변수는 <em>어느 Vercel 프로젝트</em>의 <em>Production</em> 환경에 넣었는지 확인해야 합니다. 다른 프로젝트에 넣으면 사이트에서는 읽을 수 없습니다.</p></section>
+  <section><h2>3. Supabase: 로그인과 데이터베이스</h2><p>Supabase는 PostgreSQL 데이터베이스와 사용자 로그인을 함께 제공하는 백엔드 서비스입니다. 타로 서비스에서는 Google 로그인 정보와 사용자가 뽑은 카드·질문·AI 풀이를 저장합니다.</p><div className="grid"><div><strong>Authentication</strong><p>Google 로그인처럼 “누가 접속했는지” 확인합니다.</p></div><div><strong>Table Editor</strong><p>데이터베이스 테이블과 실제 저장된 행을 표 형태로 확인합니다.</p></div><div><strong>SQL Editor</strong><p>테이블과 접근 규칙을 만드는 명령을 실행합니다.</p></div></div><p>중요한 개념은 <b>RLS(Row Level Security)</b>입니다. “로그인한 사용자는 자기 기록만 읽는다”, “관리자만 전체 기록을 본다” 같은 규칙을 DB 자체에 설정합니다.</p><p className="tip"><b>OAuth 팁:</b> Google 로그인 뒤 돌아올 주소는 Supabase → Authentication → URL Configuration에 등록해야 합니다. Vercel 주소가 바뀌면 Site URL과 Redirect URLs도 함께 변경합니다.</p></section>
+  <section><h2>4. Gemini API: 앱에 AI 기능 붙이기</h2><p>Gemini API는 사용자의 질문과 카드 정보를 받아 자연스러운 텍스트 풀이를 생성합니다. API 키는 Gemini에 요청할 자격증명이며, 반드시 Vercel 환경 변수 <code>GEMINI_API_KEY</code>로만 보관합니다.</p><ul><li>키는 Google AI Studio에서 발급합니다.</li><li>키를 Telegram, GitHub, 브라우저 코드에 붙여 넣지 않습니다.</li><li>모델 이름은 시간이 지나면 바뀌거나 종료될 수 있으므로, 오류가 나면 공식 모델 목록을 확인합니다.</li><li>무료 티어도 호출 횟수·속도 제한이 있을 수 있습니다.</li></ul></section>
+  <section><h2>5. Hermes에게 잘 요청하는 법</h2><p>코드를 직접 작성하는 대신, 요구사항·제약·완료 기준을 분명하게 말합니다.</p><pre>{`좋은 요청 예시
+“Google 로그인 사용자만 사용할 수 있는 타로 웹앱을 만들어줘.
+카드는 3장을 중복 없이 랜덤으로 뽑고,
+결과는 Supabase에 저장해줘.
+관리자 이메일은 example@gmail.com이고,
+Vercel 배포까지 가능한 Next.js 프로젝트로 만들어줘.
+테스트와 빌드도 실행해서 검증해줘.”`}</pre><p>에러가 나면 “안 돼”보다 <b>오류 메시지 전체, 현재 접속 주소, 설정 화면</b>을 함께 보여주는 것이 가장 빠릅니다.</p></section>
+  <section><h2>6. 우리가 겪은 오류로 배우기</h2><div className="lessons"><div><b>“Supabase 환경 변수가 없습니다”</b><p>원인: 실제 접속 도메인과 환경 변수를 설정한 Vercel 프로젝트가 달랐습니다.</p><p>점검: 주소창의 도메인 → Vercel 프로젝트 이름 → Production 환경 변수 순서로 확인합니다.</p></div><div><b>Google 로그인 후 예전 주소로 이동</b><p>원인: Supabase Redirect URL이 이전 Vercel 주소였습니다.</p><p>점검: Supabase URL Configuration에 현재 배포 주소를 등록합니다.</p></div><div><b>AI API 429 / 404</b><p>429는 보통 한도·결제·요청량 문제, 404는 모델 이름·경로 문제입니다.</p><p>점검: API 키 자체보다 오류 코드와 공식 문서를 먼저 확인합니다.</p></div><div><b>배포했는데 예전 화면이 보임</b><p>환경 변수 변경은 새 배포에만 반영됩니다. Redeploy 후 강력 새로고침합니다.</p></div></div></section>
+  <section className="check"><h2>수업 마무리 체크리스트</h2><p>□ GitHub 저장소를 만들었는가? &nbsp; □ Vercel이 올바른 저장소와 연결됐는가? &nbsp; □ 실제 접속 주소를 알고 있는가? &nbsp; □ Supabase 테이블과 RLS를 만들었는가? &nbsp; □ Google Redirect URL을 등록했는가? &nbsp; □ API 키를 Vercel Production 환경에만 넣었는가? &nbsp; □ Hermes에게 테스트와 빌드 검증을 요청했는가?</p></section></article></main>
 }
