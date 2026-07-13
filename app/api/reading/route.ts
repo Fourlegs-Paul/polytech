@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash",
       contents: `질문: ${question}\n\n뽑은 카드:\n${cardList}`,
       config: { systemInstruction: "당신은 따뜻하고 현실적인 한국어 타로 리더입니다. 단정적 예언이나 의료·법률·금융 조언을 하지 말고, 사용자가 스스로 선택하도록 돕는 3단락의 짧은 해석을 작성하세요." },
     });
